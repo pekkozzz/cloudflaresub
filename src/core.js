@@ -269,6 +269,9 @@ export function renderClashSubscription(nodes) {
   lines.push('    tolerance: 50');
   lines.push(`    proxies: [${proxyNames.map(yamlQuote).join(', ')}]`);
   lines.push('rules:');
+  lines.push('  - GEOIP,private,DIRECT,no-resolve');
+  lines.push('  - GEOSITE,cn,DIRECT');
+  lines.push('  - GEOIP,cn,DIRECT,no-resolve');
   lines.push('  - MATCH,🚀 节点选择');
 
   return lines.join('\n') + '\n';

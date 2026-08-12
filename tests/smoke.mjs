@@ -32,6 +32,13 @@ assert.ok(raw.length > 10);
 const clash = renderClashSubscription(expanded.nodes);
 assert.match(clash, /proxies:/);
 assert.match(clash, /edge\.example\.com/);
+assert.match(clash, /GEOIP,private,DIRECT,no-resolve/);
+assert.match(clash, /GEOSITE,cn,DIRECT/);
+assert.match(clash, /GEOIP,cn,DIRECT,no-resolve/);
+assert.ok(
+  clash.indexOf('GEOSITE,cn,DIRECT') < clash.indexOf('MATCH,🚀 节点选择'),
+  '国内直连规则必须位于最终 MATCH 规则之前',
+);
 
 const surge = renderSurgeSubscription(expanded.nodes, 'https://sub.example.com/sub/demo?target=surge');
 assert.match(surge, /\[Proxy]/);

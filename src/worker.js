@@ -351,6 +351,9 @@ function renderClash(nodes) {
     ...allGroupMembers,
     ``,
     `rules:`,
+    `  - GEOIP,private,DIRECT,no-resolve`,
+    `  - GEOSITE,cn,DIRECT`,
+    `  - GEOIP,cn,DIRECT,no-resolve`,
     `  - MATCH,节点选择`,
   ].join('\n');
 }
