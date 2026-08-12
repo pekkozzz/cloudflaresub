@@ -57,6 +57,15 @@ form.addEventListener('submit', async (event) => {
       body: JSON.stringify(payload),
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const responseText = await response.text();
+      const summary = responseText.replace(/\s+/g, ' ').trim().slice(0, 160);
+      throw new Error(
+        `接口返回了非 JSON 响应（HTTP ${response.status}）。请确认 Worker 已成功部署，且 /api/* 由 Worker 接管。${summary ? ` 响应：${summary}` : ''}`,
+      );
+    }
+
     const data = await response.json();
     if (!response.ok || !data.ok) {
       throw new Error(data.error || '生成失败');

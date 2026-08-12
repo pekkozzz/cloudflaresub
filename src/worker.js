@@ -437,6 +437,16 @@ async function buildDedupHash(body) {
 }
 
 async function handleGenerate(request, env, url) {
+  if (!env.SUB_STORE || typeof env.SUB_STORE.get !== 'function') {
+    return json(
+      {
+        ok: false,
+        error: '未绑定 KV 命名空间 SUB_STORE，请在 Cloudflare Worker 的 Settings > Bindings 中重新添加。',
+      },
+      500,
+    );
+  }
+
   let body;
   try {
     body = await request.json();
@@ -532,6 +542,10 @@ function validateAccessToken(url, env) {
 async function handleSub(url, env) {
   const tokenCheck = validateAccessToken(url, env);
   if (!tokenCheck.ok) return tokenCheck.response;
+
+  if (!env.SUB_STORE || typeof env.SUB_STORE.get !== 'function') {
+    return text('SUB_STORE KV binding is missing', 500);
+  }
 
   const id = url.pathname.split('/').pop();
   if (!id) return text('missing id', 400);

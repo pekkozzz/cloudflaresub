@@ -9,6 +9,7 @@ import {
   renderRawSubscription,
   renderSurgeSubscription,
 } from '../src/core.js';
+import worker from '../src/worker.js';
 
 const vmess = 'vmess://ewogICJ2IjogIjIiLAogICJwcyI6ICJkZW1vLXdzLXRscyIsCiAgImFkZCI6ICJlZGdlLmV4YW1wbGUuY29tIiwKICAicG9ydCI6ICI0NDMiLAogICJpZCI6ICIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDEiLAogICJzY3kiOiAiYXV0byIsCiAgIm5ldCI6ICJ3cyIsCiAgInRscyI6ICJ0bHMiLAogICJwYXRoIjogIi93cyIsCiAgImhvc3QiOiAiZWRnZS5leGFtcGxlLmNvbSIsCiAgInNuaSI6ICJlZGdlLmV4YW1wbGUuY29tIiwKICAiZnAiOiAiY2hyb21lIiwKICAiYWxwbiI6ICJoMixodHRwLzEuMSIKfQ==';
 
@@ -48,5 +49,17 @@ const secret = 'this-is-a-very-secret-key';
 const token = await encryptPayload({ nodes: expanded.nodes }, secret);
 const payload = await decryptPayload(token, secret);
 assert.equal(payload.nodes.length, 2);
+
+const missingKvResponse = await worker.fetch(
+  new Request('https://sub.example.com/api/generate', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ nodeLinks: vmess, preferredIps: '104.16.1.2' }),
+  }),
+  {},
+);
+assert.equal(missingKvResponse.status, 500);
+assert.match(missingKvResponse.headers.get('content-type') || '', /application\/json/);
+assert.match((await missingKvResponse.json()).error, /SUB_STORE/);
 
 console.log('smoke test passed');
